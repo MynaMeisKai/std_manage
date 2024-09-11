@@ -1,0 +1,17 @@
+{% extends 'student_template/base_template.html' %}
+{% block page_user %}
+<h4 style="margin-left: 10px;margin-top: 5px;">{{ student.admin.first_name }}   {{ student.admin.last_name }} /</h4>
+<h5 style="margin-left: 10px;margin-top: 5px;"><strong>{{ student.rollnumber }}</strong></h5> 
+{% endblock page_user %}
+{% block page_title %}
+Home
+{% endblock page_title %}
+{% block main_content %}
+    <!-- Main content -->
+    <section class="content">
+      <div class="container-fluid">
+      </div>
+    </section>
+    <!-- /.content -->
+{% endblock main_content %}
+

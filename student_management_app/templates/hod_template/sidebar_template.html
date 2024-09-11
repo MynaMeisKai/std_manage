@@ -1,0 +1,68 @@
+{% load static %}
+
+<aside class="main-sidebar sidebar-dark-primary elevation-4">
+      <!-- Brand Logo -->
+
+      <!-- Sidebar -->
+      <div class="sidebar">
+        <!-- Sidebar user panel (optional) -->
+          <div class="info">
+            <a href="#" class="d-block">{{ user.first_name }} {{ user.last_name }}</a>
+          </div>
+        
+
+        <!-- Sidebar Menu -->
+        <nav class="mt-2">
+          <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu" data-accordion="false">
+            <!-- Add icons to the links using the .nav-icon class
+                with font-awesome or any other icon font library -->
+
+            <li class="nav-item">
+              {% url 'admin_home' as admin_home %}
+              <a href="{{ admin_home }}" class="nav-link {% if request.path == admin_home %} active {% endif %}">
+                <i class="nav-icon fas fa-tachometer-alt"></i>
+                <p>
+                  Home
+                </p>
+              </a>
+            </li>
+
+            
+            
+            
+            <li class="nav-item">
+              {% url 'manage_student' as manage_student %}
+              <a href="{{ manage_student }}" class="nav-link {% if request.path == manage_student %} active {% endif %}">
+                <i class="nav-icon fas fa-user-graduate"></i>
+                <p>
+                  Manage Student
+                </p>
+              </a>
+            </li>
+
+            <li class="nav-item">
+              {% url 'add_student' as add_student %}
+              <a href="{{ add_student }}" class="nav-link {% if request.path == add_student %} active {% endif %}">
+                <i class="nav-icon fas fa-th"></i>
+                <p>
+                  Add Student
+                </p>
+              </a>
+            </li>
+
+            <li class="nav-item">
+              {% url 'student_leave_view' as student_leave_view %}
+              <a href="{{ student_leave_view }}" class="nav-link {% if request.path == student_leave_view %} active {% endif %}">
+                <i class="nav-icon fas fa-th"></i>
+                <p>
+                  Student Leave
+                </p>
+              </a>
+            </li>
+
+          </ul>
+        </nav>
+        <!-- /.sidebar-menu -->
+      </div>
+      <!-- /.sidebar -->
+    </aside>
