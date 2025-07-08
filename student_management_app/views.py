@@ -2,7 +2,7 @@ from django.contrib import messages
 from django.http import HttpResponse, HttpResponseRedirect
 from django.shortcuts import render
 from django.urls import reverse
-from django.contrib.auth import login, logout
+from django.contrib.auth import login, logout,authenticate
 from .EmailBackEnd import *
 
 # Create your views here.
@@ -17,9 +17,11 @@ def doLogin(request):
     if request.method!="POST":
         return HttpResponse("<h2>Method Not Allowed</h2>")
     else:
-        user=EmailBackEnd.authenticate(request,username=request.POST.get("email"),password=request.POST.get("password"))
-        if user!=None:
+        user =  EmailBackEnd.authenticate(request,username=request.POST.get("email"),password=request.POST.get("password"))
+        if user is not None:
+            print("======================",user.user_type)
             login(request,user)
+
             if user.user_type=="1":
                 return HttpResponseRedirect('admin_home')
             else:
