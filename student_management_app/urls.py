@@ -27,5 +27,8 @@ urlpatterns = [
     path('student_apply_leave/', studentViews.studentapplyleave, name="student_apply_leave"),
     path('student_apply_leave_save/', studentViews.studentapplyleavesave, name="student_apply_leave_save"),
     path('cancel_leave',studentViews.cancelleave,name="cancel_leave"),
+
+    path('std_course_page/', studentViews.std_course_page, name='std_course_page'),
+    path('std_course_register/', studentViews.std_course_register, name='std_course_register'),
     
     ]

@@ -1,0 +1,48 @@
+<!-- registration/templates/registration/schedule.html -->
+{% extends "registration/base.html" %}
+{% load static %}
+
+{% block content %}
+    <div class="schedule-container">
+        <h2>Class Schedule for {{ student.name }} ({{ student.student_id }})</h2>
+        
+        <div class="schedule-actions">
+            <a href="{% url 'generate_pdf' student.student_id %}" class="btn">Download as PDF</a>
+            <a href="{% url 'index' %}" class="btn">Return to Registration</a>
+        </div>
+        
+        <table class="detailed-schedule">
+            <thead>
+                <tr>
+                    <th>Time</th>
+                    <th>Monday</th>
+                    <th>Tuesday</th>
+                    <th>Wednesday</th>
+                    <th>Thursday</th>
+                    <th>Friday</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for time_slot in time_slots %}
+                <tr>
+                    <td>{{ time_slot.start|time:"H:i" }} - {{ time_slot.end|time:"H:i" }}</td>
+                    {% for day in days %}
+                    <td>
+                        {% for course in courses %}
+                            {% if day in course.days and course.start_time <= time_slot.end and course.end_time >= time_slot.start %}
+                                <div class="course-block">
+                                    <strong>{{ course.course_code }}</strong><br>
+                                    {{ course.course_name }}<br>
+                                    {{ course.instructor }}<br>
+                                    {{ course.classroom }}
+                                </div>
+                            {% endif %}
+                        {% endfor %}
+                    </td>
+                    {% endfor %}
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+{% endblock %}

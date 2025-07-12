@@ -1,0 +1,44 @@
+<!-- registration/templates/registration/register_success.html -->
+{% extends "registration/base.html" %}
+{% load static %}
+
+{% block content %}
+    <div class="success-message">
+        <h2>Registration Successful!</h2>
+        <p>Thank you, {{ student.name }}. You have successfully registered for the following courses:</p>
+        
+        <div class="schedule-preview">
+            <h3>Your Schedule</h3>
+            <table class="schedule-table">
+                <thead>
+                    <tr>
+                        <th>Course Code</th>
+                        <th>Course Name</th>
+                        <th>Instructor</th>
+                        <th>Time</th>
+                        <th>Days</th>
+                        <th>Room</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for course in courses %}
+                    <tr>
+                        <td>{{ course.course_code }}</td>
+                        <td>{{ course.course_name }}</td>
+                        <td>{{ course.instructor }}</td>
+                        <td>{{ course.start_time|time:"H:i" }} - {{ course.end_time|time:"H:i" }}</td>
+                        <td>{{ course.days }}</td>
+                        <td>{{ course.classroom }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        
+        <div class="actions">
+            <a href="{% url 'schedule' student.student_id %}" class="btn">View Detailed Schedule</a>
+            <a href="{% url 'generate_pdf' student.student_id %}" class="btn">Download as PDF</a>
+            <a href="{% url 'course_field' %}" class="btn">Return to Registration</a>
+        </div>
+    </div>
+{% endblock %}

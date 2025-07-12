@@ -1,0 +1,112 @@
+<!-- registration/templates/registration/index.html -->
+{% extends 'student_template/base_template.html' %}
+
+{% block page_user %}
+<h4 style="margin-left: 10px;margin-top: 5px;">{{ student.admin.first_name }}   {{ student.admin.last_name }} /</h4>
+<h5 style="margin-left: 10px;margin-top: 5px;"><strong>{{ student.rollnumber }}</strong></h5> 
+{% endblock page_user %}
+
+{% block page_title %}
+        
+{% endblock page_title %}
+
+{% block main_content %}
+
+{% load static %}
+<section class="content">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-md-12">
+                <div class="card card-primary">
+                    <div class="card-header">
+                        <h2 class="card-title">Course Registration</h2>
+                    </div>
+
+                    <div class="card-body">
+                        <form method="post">
+                            {% csrf_token %}
+                            <h3>Available Courses</h3>
+
+                            <div class="timetable-container" style="overflow-x: auto;">
+                                <table class="table table-bordered">
+                                <thead>
+                                    <tr>
+                                        <th>Day/Time</th>
+                                        {% for time_slot in time_slots %}
+                                            <th>{{ time_slot.start|time:"H:i" }} - {{ time_slot.end|time:"H:i" }}</th>
+                                        {% endfor %}
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {% for day in days_of_week %}  <!-- This will now be in Mon-Fri order -->
+                                        <tr>
+                                            <td><strong>{{ day }}</strong></td>
+                                            {% for time_slot in time_slots %}
+                                                <td style="min-width: 150px; min-height: 100px;">
+                                                    
+                                                    {% for course in courses %}
+                                                        
+                                                        {% if course.days == day and course.start_time == time_slot.start %}
+                                                            <div class="course-slot card {% if course.is_full %}border-danger{% endif %} p-2 mb-2">
+                                                                <div class="form-check">
+                                                                    <input class="form-check-input" type="checkbox" 
+                                                                        name="courses" value="{{ course.id }}" 
+                                                                        id="course_{{ course.id }}_{{ day }}_{{ time_slot.start }}"
+                                                                        {% if course.is_full %}disabled{% endif %}>
+                                                                    <label class="form-check-label" for="course_{{ course.id }}_{{ day }}_{{ time_slot.start }}">
+                                                                        <strong>{{ course.course_code }}</strong><br>
+                                                                        {{ course.course_name }}<br>
+                                                                        {{ course.instructor }}<br>
+                                                                        {{ course.classroom }}<br>
+                                                                        <small>{{ course.enrolled }}/{{ course.capacity }}</small>
+                                                                        {% if course.is_full %}<span class="badge bg-danger">Full</span>{% endif %}
+                                                                    </label>
+                                                                </div>
+                                                            </div>
+                                                        {% endif %}
+                                                    {% endfor %}
+                                                </td>
+                                            {% endfor %}
+                                        </tr>
+                                    {% endfor %}
+                                </tbody>
+                            </table>
+                            </div>
+                            
+                            <button type="submit" class="btn btn-warning mt-3">Register</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<style>
+.course-slot {
+    background-color: #f8f9fa;
+    transition: all 0.2s;
+}
+
+.course-slot:hover {
+    background-color: #e9f7fe;
+    cursor: pointer;
+}
+
+.course-slot.border-danger {
+    background-color: #f8d7da;
+}
+
+.table th {
+    background-color: #f8f9fa;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.timetable-container {
+    max-height: 600px;
+    overflow-y: auto;
+}
+</style>
+  {% endblock main_content %}

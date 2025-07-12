@@ -1,4 +1,5 @@
 from django import forms
+from student_management_app.models import Course
 
 class DateInput(forms.DateInput):
     input_type = "date"
@@ -31,3 +32,36 @@ class EditStudentForm(forms.Form):
     )
 
     gender=forms.ChoiceField(label="Gender",choices=gender_choice,widget=forms.Select(attrs={"class":"form-control"}))
+
+
+class RegistrationForm(forms.Form):
+    student_id = forms.CharField(label='Student ID', max_length=20)
+    name = forms.CharField(label='Full Name', max_length=100)
+    email = forms.EmailField(label='Email')
+    courses = forms.ModelMultipleChoiceField(
+        queryset=Course.objects.all(),
+        widget=forms.CheckboxSelectMultiple,
+        required=True
+    )
+
+    def clean(self):
+        cleaned_data = super().clean()
+        courses = cleaned_data.get('courses', [])
+        
+        # Check for time conflicts
+        course_list = list(courses)
+        for i in range(len(course_list)):
+            for j in range(i + 1, len(course_list)):
+                if course_list[i].has_time_conflict(course_list[j]):
+                    raise forms.ValidationError(
+                        f"Time conflict between {course_list[i].course_code} and {course_list[j].course_code}"
+                    )
+        
+        # Check for full courses
+        for course in courses:
+            if course.is_full():
+                raise forms.ValidationError(
+                    f"Course {course.course_code} is already full"
+                )
+        
+        return cleaned_data
