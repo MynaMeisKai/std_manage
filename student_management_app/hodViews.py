@@ -9,7 +9,7 @@ from django.contrib.auth.decorators import login_required
 
 
 
-@login_required(login_url='/student_management_app/login_requireds/')
+@login_required(login_url='/login_requireds/') 
 def admin_home(request):
 
     all_student_count = Students.objects.all().count()
@@ -21,11 +21,11 @@ def admin_home(request):
     return render(request,"hod_template/home_content.html",context)
 
 
-@login_required(login_url='/student_management_app/login_requireds/')
+@login_required(login_url='/login_requireds/') 
 def add_staff(request):
     return render(request,"hod_template/add_staff_template.html")
 
-@login_required(login_url='/student_management_app/login_requireds/')
+@login_required(login_url='/login_requireds/') 
 def add_staff_save(request):
     if request.method!="POST":
         return HttpResponse("Method Not Allowed")
@@ -37,7 +37,8 @@ def add_staff_save(request):
         password=request.POST.get("password")
         address=request.POST.get("address")
         try:
-            user=CustomUser.objects.create_user(username=username,password=password,email=email,last_name=last_name,first_name=first_name,user_type=2)
+            user=CustomUser.objects.create_user(username=username,password=password,email=email,
+                                                last_name=last_name,first_name=first_name,user_type=2)
             user.staffs.address=address
             user.save()
             messages.success(request,"Successfully Added Staff")
@@ -47,12 +48,12 @@ def add_staff_save(request):
             return HttpResponseRedirect(reverse("add_staff"))
 
 
-@login_required(login_url='/student_management_app/login_requireds/')
+@login_required(login_url='/login_requireds/') 
 def add_student(request):
     form=AddStudentForm()
     return render(request,"hod_template/add_student_template.html",{"form":form})
 
-@login_required(login_url='/student_management_app/login_requireds/')
+@login_required(login_url='/login_requireds/') 
 def add_student_save(request):
     if request.method!="POST":
         return HttpResponse("Method Not Allowed")
@@ -69,8 +70,8 @@ def add_student_save(request):
             address=form.cleaned_data["address"]
             print(form.is_valid())
             try:
-                user = CustomUser.objects.create_user(username=username, password=password, email=email,first_name=first_name, 
-                                                      last_name=last_name, user_type=2)
+                user = CustomUser.objects.create_user(username=username, password=password, email=email,
+                                                      first_name=first_name,last_name=last_name, user_type=2)
                 print('---------------',gender,rollno,address)
                 user.students.gender = gender
                 user.students.rollnumber = rollno
@@ -86,7 +87,7 @@ def add_student_save(request):
             form=AddStudentForm(request.POST)
             return render(request, "hod_template/add_student_template.html", {"form": form})
 
-@login_required(login_url='/student_management_app/login_requireds/')
+@login_required(login_url='/login_requireds/') 
 def managestudent(request):
     students = Students.objects.all()
     context = {
@@ -94,7 +95,7 @@ def managestudent(request):
     }
     return render(request, 'hod_template/manage_student_template.html', context)
 
-@login_required(login_url='/student_management_app/login_requireds/')
+@login_required(login_url='/login_requireds/') 
 def edit_student(request,student_id):
     request.session['student_id']=student_id
     student=Students.objects.get(admin=student_id)
@@ -106,9 +107,10 @@ def edit_student(request,student_id):
     form.fields['address'].initial=student.address
     form.fields['rollnumber'].initial=student.rollnumber
     form.fields['gender'].initial=student.gender
-    return render(request,"hod_template/edit_student_template.html",{"form":form,"id":student_id,"username":student.admin.username})
+    return render(request,"hod_template/edit_student_template.html",{"form":form,"id":student_id,
+                                                                    "username":student.admin.username})
 
-@login_required(login_url='/student_management_app/login_requireds/')
+@login_required(login_url='/login_requireds/') 
 def edit_student_save(request):
     if request.method!="POST":
         return HttpResponse("<h2>Method Not Allowed</h2>")
@@ -147,10 +149,11 @@ def edit_student_save(request):
         else:
             form=EditStudentForm(request.POST)
             student=Students.objects.get(admin=student_id)
-            return render(request,"hod_template/edit_student_template.html",{"form":form,"id":student_id,"username":student.admin.username})
+            return render(request,"hod_template/edit_student_template.html",{"form":form,"id":student_id,
+                                                                            "username":student.admin.username})
 
 
-@login_required(login_url='/student_management_app/login_requireds/')
+@login_required(login_url='/login_requireds/') 
 def studentleaveview(request):
     leaves = LeaveReportStudent.objects.all()
     context = {
@@ -158,7 +161,7 @@ def studentleaveview(request):
     }
     return render(request, 'hod_template/student_leave_view.html', context)
 
-@login_required(login_url='/student_management_app/login_requireds/')
+@login_required(login_url='/login_requireds/') 
 def studentleaveapprove(request, leave_id):
     leave = LeaveReportStudent.objects.get(id=leave_id)
     leave.leave_status = 1
@@ -166,7 +169,7 @@ def studentleaveapprove(request, leave_id):
     return redirect('student_leave_view')
 
 
-@login_required(login_url='/student_management_app/login_requireds/')
+@login_required(login_url='/login_requireds/') 
 def studentleavereject(request, leave_id):
     leave = LeaveReportStudent.objects.get(id=leave_id)
     leave.leave_status = 2

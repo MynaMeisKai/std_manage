@@ -1,20 +1,22 @@
 from datetime import time
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import redirect, render
 from django.contrib import messages
 from student_management_app.forms import RegistrationForm
 from student_management_app.models import *
 from django.contrib.auth.decorators import login_required
+from django.views.decorators.csrf import csrf_exempt
 
 
 
-@login_required(login_url='/student_management_app/login_requireds/')
+@login_required(login_url='/login_requireds/')
 def student_home(request):
     student_obj = Students.objects.get(admin=request.user.id)
     return render(request, "student_template/student_home_template.html",{"student":student_obj})
 
 
 
-@login_required(login_url='/student_management_app/login_requireds/')
+@login_required(login_url='/login_requireds/')
 def studentapplyleave(request):
     student_obj = Students.objects.get(admin=request.user.id)
     leave_data = LeaveReportStudent.objects.filter(student_id=student_obj)
@@ -46,7 +48,7 @@ def studentapplyleavesave(request):
             messages.error(request, "Failed to Apply Leave")
             return redirect('student_apply_leave')
 
-@login_required(login_url='/student_management_app/login_requireds/')        
+@login_required(login_url='/login_requireds/') 
 def cancelleave(request): 
     student_obj = Students.objects.get(admin=request.user.id)
     leave_deletes=LeaveReportStudent.objects.filter(student_id=student_obj)
@@ -54,7 +56,7 @@ def cancelleave(request):
     return redirect('student_apply_leave')
 
 
-
+@login_required(login_url='/login_requireds/')        
 def std_course_page(request):
     courses = Course.objects.all()
     days_of_week = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
@@ -63,7 +65,7 @@ def std_course_page(request):
   
     db_days = Course.objects.values_list('days', flat=True).distinct()
     ordered_days = [day for day in days_of_week if day in db_days]
-    print(ordered_days)
+    # print(ordered_days)
     time_slots = [
         {'start': time(9, 0), 'end': time(9, 45)},  # 09:00 - 09:45
         {'start': time(9, 45), 'end': time(10, 30)}, 
@@ -87,39 +89,36 @@ def std_course_page(request):
     return render(request, 'student_template/course_field.html', context)
 
 
+@login_required(login_url='/login_requireds/') 
+@csrf_exempt
 def std_course_register(request):
     if request.method == 'POST':
-        form = RegistrationForm(request.POST)
-        if form.is_valid():
-            student_id = form.cleaned_data['student_id']
-            name = form.cleaned_data['name']
-            email = form.cleaned_data['email']
-            courses = form.cleaned_data['courses']
+        try:
+            student_obj = Students.objects.get(admin=request.user.id)
+            day = request.POST.get('register_day')
+            courses_selected = request.POST.getlist('courses[]') 
             
-            # Create or update student
-            student, created = Students.objects.get_or_create(
-                student_id=student_id,
-                defaults={'name': name, 'email': email}
-            )
-            if not created:
-                student.name = name
-                student.email = email
-                student.save()
+            print(f"Registering for day: {day}, courses: {courses_selected}")
             
-            # Register for courses
-            for course in courses:
-                student.registered_courses.add(course)
-                course.enrolled += 1
-                course.save()
-            
-            return render(request, 'student_template/register_success.html', {
-                'student': student,
-                'courses': courses
-            })
+            for course_id in courses_selected:
+                if course_id != "":
+                    course = Course.objects.get(id=int(course_id))
+                    student_obj.registered_courses.add(course)
+                    # , through_defaults={'day': day}
+            return JsonResponse({'success': True})
+        
+        except Exception as e:
+            return JsonResponse({'success': False, 'error': str(e)})
     else:
-        form = RegistrationForm()
+        return JsonResponse({'success': False, 'error': 'Invalid request method'})
     
-    return render(request, 'student_template/course_filed.html', {
-        'form': form,
-        'courses': Course.objects.all()
-    })
+
+
+def view_table_time(request):
+    student_obj = Students.objects.get(admin=request.user.id)
+    registered_courses = student_obj.registered_courses.all()
+    context = {
+        'student' : student_obj,
+        'registered_courses': registered_courses,
+    }
+    return render(request,'student_template/register_success.html',context)

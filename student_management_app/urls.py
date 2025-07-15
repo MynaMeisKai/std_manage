@@ -30,5 +30,6 @@ urlpatterns = [
 
     path('std_course_page/', studentViews.std_course_page, name='std_course_page'),
     path('std_course_register/', studentViews.std_course_register, name='std_course_register'),
+    path('view_table_time/', studentViews.view_table_time, name='view_table_time'),
     
     ]

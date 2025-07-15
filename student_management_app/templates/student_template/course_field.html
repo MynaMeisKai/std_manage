@@ -23,7 +23,6 @@
                     </div>
 
                     <div class="card-body">
-                        <form method="post">
                             {% csrf_token %}
                             <h3>Available Courses</h3>
 
@@ -35,39 +34,50 @@
                                             {% for time_slot in time_slots %}
                                                 <th>{{ time_slot.start|time:"H:i" }} - {{ time_slot.end|time:"H:i" }}</th>
                                             {% endfor %}
+                                            <th>submit</th>
                                         </tr>
                                     </thead>
-                                    <tbody>
-                                        {% for day in days_of_week %}
+                                    <!-- action="{% url 'std_course_register' %}" -->
+                                    <form id="sample_form_datas"  method="post">
+                                    {% csrf_token %}
+                                        <tbody>
+                                            {% for day in days_of_week %}
                                             <tr>
-                                                <td class="day-cell">{{ day }}</td>
-                                                {% for time_slot in time_slots %}
-                                                    <td class="time-cell">
-                                                        <div class="course-select-wrapper">
-                                                            <select class="course-select">
-                                                                <option value="">--select--</option>
-                                                                {% for course in courses %}
-                                                                    {% if day == course.days and time_slot.start == course.start_time %}
-                                                                    <strong> 
-                                                                        <option value="{{ course.id }}">
-                                                                            {{ course.course_code }} • {{ course.instructor|truncatechars:12 }} |
-                                                                            {{course.classroom }}
-                                                                        </option>
-                                                                    </strong>
-                                                                    {% endif %}
-                                                                {% endfor %}
-                                                            </select>
-                                                        </div>
-                                                    </td>
-                                                {% endfor %}
-                                            </tr>
-                                        {% endfor %}
-                                    </tbody>
+                                                    <td class="day-cell">{{ day }}</td>
+                                                        {% for time_slot in time_slots %}
+                                                            <td class="time-cell">
+                                                                <div class="course-select-wrapper">
+                                                                    <select class="course-select" id="sample_01" name="courses[{{ day }}]" >
+                                                                        <option value="">--select--</option>
+                                                                            {% for course in courses %}
+                                                                                {% if day == course.days and time_slot.start == course.start_time %}
+                                                                                <strong> 
+                                                                                    <option value="{{ course.id }}">
+                                                                                        {{ course.course_code }} • {{ course.instructor|truncatechars:12 }} |
+                                                                                        {{course.classroom }}
+                                                                                    </option>
+                                                                                </strong>
+                                                                                {% endif %}
+                                                                            {% endfor %}
+                                                                    </select>
+                                                                </div>
+                                                            </td>
+                                                        {% endfor %}
+                                                        <td>
+                                                            <button type="submit" name="register_day" value="{{ day }}" class="btn register-btn" >
+                                                                Register
+                                                            </button>
+                                                        </td>
+                                                    </tr> 
+                                                    {% endfor %}
+                                        </tbody>
+                                    </form>
+                                            
                                 </table>
                             </div>
-                            
-                            <button type="submit" class="btn mt-3">Register</button>
-                        </form>
+                            <button class="btn-primary-danger">
+                                <a href="{% url 'view_table_time' %}"> View time table</a>
+                            </button>
                     </div>
                 </div>
             </div>
@@ -75,9 +85,39 @@
     </div>
 </section>
 
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script>
+    $(document).on('submit', '#sample_form_datas',function(e){
+        e.preventDefault(); 
+        var clickedBtn = $(document.activeElement);
+        var day = clickedBtn.val(); 
+        var formData = {
+            'register_day': day,
+            'csrfmiddlewaretoken': $('input[name="csrfmiddlewaretoken"]').val(),
+            'courses': []
+        };
+        $(`select[name="courses[${day}]"]`).each(function() {
+            if ($(this).val()) {
+                formData.courses.push($(this).val());
+            }
+        });
+        $.ajax({
+            type:'POST',
+            url:'{% url "std_course_register" %}',
+            data : formData,
+            success:function(json){
+            alert("sam,")
+            },
+            error : function(xhr,errmsg,err) {
+            console.log(xhr.status + ": " + xhr.responseText); 
+        }
+        });
+});
+</script>
+
 <style>
-/* Base Table Styles */
-.timetable {
+    /* Base Table Styles */
+    .timetable {
     width: 100%;
     border-collapse: collapse;
     font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
