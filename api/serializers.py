@@ -4,6 +4,17 @@ from student_management_app.models import CustomUser, AdminHOD, Students, LeaveR
 from django.contrib.auth import authenticate
 from django.contrib.auth.hashers import make_password
 from django.core.exceptions import ObjectDoesNotExist
+from django.contrib.auth import get_user_model
+from rest_framework_simplejwt.tokens import RefreshToken
+
+
+
+
+class StudentsSerializer(serializers.ModelSerializer):
+    class Meta:
+        model = Students
+        fields = '__all__'
+
 
 def update_student_profile(user, roll_number, gender, address):
     try:
@@ -64,16 +75,14 @@ class RegisterSerializer(serializers.ModelSerializer):
 class LoginSerializer(serializers.Serializer):
     username = serializers.CharField()
     password = serializers.CharField(write_only=True)
-    token = serializers.CharField(read_only=True)
-    user_type = serializers.CharField(read_only=True)
 
     def validate(self, data):
+        aser = get_user_model()
         username = data.get('username')
         password = data.get('password')
-
         if username and password:
-            user = authenticate(username=username, password=password)
-            # print('=====================================',user)
+            # user = authenticate(username=username, password=password)
+            user = aser.objects.get(username=username)
             if user and user.is_active:
                 data['user'] = user
                 return data
@@ -84,12 +93,13 @@ class LoginSerializer(serializers.Serializer):
 
     def create(self, validated_data):
         user = validated_data['user']
-        from rest_framework_simplejwt.tokens import RefreshToken
         refresh = RefreshToken.for_user(user)
+        st=user.students
         return {
             'username': user.username,
             'token': str(refresh.access_token),
-            'user_type': user.get_user_type_display()
+            # 'user_type': user.get_user_type_display(),
+            'user':StudentsSerializer(st).data
         }
 
 class LeaveReportStudentSerializer(serializers.ModelSerializer):

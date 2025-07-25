@@ -60,12 +60,11 @@ def cancelleave(request):
 def std_course_page(request):
     courses = Course.objects.all()
     days_of_week = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
-    # form = RegistrationForm()
     student_obj = Students.objects.get(admin=request.user.id)
   
     db_days = Course.objects.values_list('days', flat=True).distinct()
     ordered_days = [day for day in days_of_week if day in db_days]
-    # print(ordered_days)
+
     time_slots = [
         {'start': time(9, 0), 'end': time(9, 45)},  # 09:00 - 09:45
         {'start': time(9, 45), 'end': time(10, 30)}, 
@@ -75,7 +74,6 @@ def std_course_page(request):
         {'start': time(2, 15), 'end': time(3, 0)},
     ]
  
-    days_of_week = Course.objects.values_list('days', flat=True).distinct()
     
     context = {
         'days_of_week': ordered_days,
@@ -115,10 +113,27 @@ def std_course_register(request):
 
 
 def view_table_time(request):
+
+    time_slots = [
+        {'start': time(9, 0), 'end': time(9, 45)},  # 09:00 - 09:45
+        {'start': time(9, 45), 'end': time(10, 30)}, 
+        {'start': time(10, 30), 'end': time(11, 15)}, 
+        {'start': time(11, 45), 'end': time(12, 30)},
+        {'start': time(1, 30), 'end': time(2,15)},
+        {'start': time(2, 15), 'end': time(3, 0)},
+    ]
     student_obj = Students.objects.get(admin=request.user.id)
     registered_courses = student_obj.registered_courses.all()
+
+    days_of_week = ['Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday']
+    db_days = Course.objects.values_list('days', flat=True).distinct()
+    ordered_days = [day for day in days_of_week if day in db_days]
+
+
     context = {
+        'time_slots': time_slots,
         'student' : student_obj,
+        'days_of_week': ordered_days,
         'registered_courses': registered_courses,
     }
-    return render(request,'student_template/register_success.html',context)
+    return render(request,'student_template/schedule.html',context)

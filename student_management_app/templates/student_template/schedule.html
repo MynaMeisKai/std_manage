@@ -1,48 +1,61 @@
-<!-- registration/templates/registration/schedule.html -->
-{% extends "registration/base.html" %}
-{% load static %}
+{% extends 'student_template/base_template.html' %}
 
-{% block content %}
+{% block page_user %}
+<h4 style="margin-left: 10px;margin-top: 5px;">{{ student.admin.first_name }}   {{ student.admin.last_name }} /</h4>
+<h5 style="margin-left: 10px;margin-top: 5px;"><strong>{{ student.rollnumber }}</strong></h5> 
+{% endblock page_user %}
+
+{% block page_title %}
+        
+{% endblock page_title %}
+{% block main_content %}
+
+{% load static %}
     <div class="schedule-container">
-        <h2>Class Schedule for {{ student.name }} ({{ student.student_id }})</h2>
-        
-        <div class="schedule-actions">
-            <a href="{% url 'generate_pdf' student.student_id %}" class="btn">Download as PDF</a>
-            <a href="{% url 'index' %}" class="btn">Return to Registration</a>
-        </div>
-        
+        <h2>Class Schedule for {{ student.admin.first_name }}   {{ student.admin.last_name }} ({{ student.rollnumber }})</h2>
+      
+     
         <table class="detailed-schedule">
-            <thead>
-                <tr>
+                <thead>
+                    <tr>
                     <th>Time</th>
-                    <th>Monday</th>
-                    <th>Tuesday</th>
-                    <th>Wednesday</th>
-                    <th>Thursday</th>
-                    <th>Friday</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for time_slot in time_slots %}
-                <tr>
-                    <td>{{ time_slot.start|time:"H:i" }} - {{ time_slot.end|time:"H:i" }}</td>
-                    {% for day in days %}
-                    <td>
-                        {% for course in courses %}
-                            {% if day in course.days and course.start_time <= time_slot.end and course.end_time >= time_slot.start %}
+                    {% for day in days_of_week %}
+                        <th>{{ day }}</th>
+                    {% endfor %}
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for time_slot in time_slots %}
+                    <tr>
+                        <td>{{ time_slot.start|time:"H:i" }} - {{ time_slot.end|time:"H:i" }}</td>
+                        
+                        {% for day in days_of_week %}
+                        <td>
+                            {% for course in registered_courses %}
+                            {% if day in course.days and time_slot.start == course.start_time %}
                                 <div class="course-block">
-                                    <strong>{{ course.course_code }}</strong><br>
-                                    {{ course.course_name }}<br>
-                                    {{ course.instructor }}<br>
-                                    {{ course.classroom }}
+                                <strong>{{ course.course_code }}</strong><br>
+                                {{ course.course_name }}<br>
+                                {{ course.instructor }}<br>
+                                {{ course.classroom }}<br>
+                                {{ course.start_time }}<br>
+                                {{ course.days }}<br>
                                 </div>
                             {% endif %}
+                            {% endfor %}
+                        </td>
                         {% endfor %}
-                    </td>
+                    </tr>
                     {% endfor %}
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+                </tbody>
+            </table>
     </div>
-{% endblock %}
+
+    
+ {% endblock main_content %}
+ <script>  
+// <!--  <div class="schedule-actions">
+//             <a href="{% url 'generate_pdf' student.student_id %}" class="btn">Download as PDF</a>
+//             <a href="{% url 'index' %}" class="btn">Return to Registration</a>
+//         </div> -->
+        </script>  
